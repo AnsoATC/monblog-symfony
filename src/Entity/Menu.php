@@ -1,50 +1,51 @@
 <?php
 
 namespace App\Entity;
-
 use App\Repository\MenuRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: MenuRepository::class)]
 class Menu
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
+    #[ORM\Column(type: 'integer')]
+    private $id;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(type: 'string', length: 255)]
+    private $name;
 
-    #[ORM\Column(nullable: true)]
-    private ?int $menuOrder = null;
+    #[Assert\PositiveOrZero]
+    #[ORM\Column(type: 'integer', nullable: true)]
+    private $menuOrder;
 
-    #[ORM\ManyToMany(targetEntity: self::class, inversedBy: 'subMenus')]
-    private Collection $subMenu;
+    #[ORM\ManyToMany(targetEntity: self::class)]
+    private $subMenus;
 
-    #[ORM\ManyToMany(targetEntity: self::class, mappedBy: 'subMenu')]
-    private Collection $subMenus;
+    #[ORM\Column(type: 'boolean')]
+    private $isVisible;
 
-    #[ORM\Column]
-    private ?bool $isVisible = null;
+    #[ORM\ManyToOne(targetEntity: Article::class)]
+    #[Orm\JoinColumn(onDelete: 'CASCADE')]
+    private $article;
 
-    #[ORM\ManyToOne]
-    private ?Article $article = null;
+    #[ORM\ManyToOne(targetEntity: Category::class)]
+    #[Orm\JoinColumn(onDelete: 'CASCADE')]
+    private $category;
 
-    #[ORM\ManyToOne]
-    private ?Category $category = null;
+    #[ORM\Column(type: 'string', length: 255, nullable: true)]
+    #[Orm\JoinColumn(onDelete: 'CASCADE')]
+    private $link;
 
-    #[ORM\ManyToOne]
-    private ?Page $page = null;
-
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $link = null;
+    #[ORM\ManyToOne(targetEntity: Page::class)]
+    #[Orm\JoinColumn(onDelete: 'CASCADE')]
+    private $page;
 
     public function __construct()
     {
-        $this->subMenu = new ArrayCollection();
         $this->subMenus = new ArrayCollection();
     }
 
@@ -70,53 +71,33 @@ class Menu
         return $this->menuOrder;
     }
 
-    public function setMenuOrder(?int $menuOrder): self
+    public function setMenuOrder(int $menuOrder): self
     {
         $this->menuOrder = $menuOrder;
 
         return $this;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
-    public function getSubMenu(): Collection
+    public function getLink(): ?string
     {
-        return $this->subMenu;
+        return $this->link;
     }
 
-    public function addSubMenu(self $subMenu): self
+    public function setLink(?string $link): self
     {
-        if (!$this->subMenu->contains($subMenu)) {
-            $this->subMenu->add($subMenu);
-        }
+        $this->link = $link;
 
         return $this;
     }
 
-    public function removeSubMenu(self $subMenu): self
+    public function getPage(): ?Page
     {
-        $this->subMenu->removeElement($subMenu);
-
-        return $this;
+        return $this->page;
     }
 
-    /**
-     * @return Collection<int, self>
-     */
-    public function getSubMenus(): Collection
+    public function setPage(?Page $page): self
     {
-        return $this->subMenus;
-    }
-
-    public function isIsVisible(): ?bool
-    {
-        return $this->isVisible;
-    }
-
-    public function setIsVisible(bool $isVisible): self
-    {
-        $this->isVisible = $isVisible;
+        $this->page = $page;
 
         return $this;
     }
@@ -145,26 +126,43 @@ class Menu
         return $this;
     }
 
-    public function getPage(): ?Page
+    /**
+     * @return Collection<int, self>
+     */
+    public function getSubMenus(): Collection
     {
-        return $this->page;
+        return $this->subMenus;
     }
 
-    public function setPage(?Page $page): self
+    public function addSubMenu(self $subMenu): self
     {
-        $this->page = $page;
+        if (!$this->subMenus->contains($subMenu)) {
+            $this->subMenus[] = $subMenu;
+        }
 
         return $this;
     }
 
-    public function getLink(): ?string
+    public function removeSubMenu(self $subMenu): self
     {
-        return $this->link;
+        $this->subMenus->removeElement($subMenu);
+
+        return $this;
     }
 
-    public function setLink(?string $link): self
+    public function __toString(): string
     {
-        $this->link = $link;
+        return $this->name;
+    }
+
+    public function getIsVisible(): ?bool
+    {
+        return $this->isVisible;
+    }
+
+    public function setIsVisible(bool $isVisible): self
+    {
+        $this->isVisible = $isVisible;
 
         return $this;
     }
