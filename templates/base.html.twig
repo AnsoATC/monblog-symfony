@@ -19,39 +19,53 @@
 		{% endblock %}
 	</head>
 	<body>
-		<nav class="py-2 bg-dark border-bottom">
-			<div class="container d-flex flex-wrap">
+		{% if is_granted('ROLE_AUTHOR') %}
+			<nav class="py-2 bg-dark border-bottom">
+				<div class="container d-flex flex-wrap">
 
-				<div class="dropdown">
-					<a class="nav-link link-light px-2 dropdown-toggle text-white" href="#" role="button" id="dropdownAdminLink" data-bs-toggle="dropdown" aria-expanded="false">
-						Mon blog
-					</a>
-					<ul class="dropdown-menu" aria-labelledby="dropdownMenuButtonAdminDashboard">
-						<li>
-							<a class="dropdown-item" href="{{ ea_url() }}">Tableau de bord</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="{{ ea_admin_url('MenuCrudController') }}">Menus</a>
-						</li>
-					</ul>
+					<div class="dropdown">
+						<a class="nav-link link-light px-2 dropdown-toggle text-white" href="#" role="button" id="dropdownAdminLink" data-bs-toggle="dropdown" aria-expanded="false">
+							Mon blog
+						</a>
+						<ul class="dropdown-menu" aria-labelledby="dropdownAdminLink">
+							<li>
+								<a class="dropdown-item" href="{{ ea_url() }}">Tableau de bord</a>
+								{% if is_granted('ROLE_ADMIN') %}
+									<li>
+										<a class="dropdown-item" href="{{ ea_admin_url('MenuCrudController') }}">Menus</a>
+									</li>
+								{% endif %}
+							</li>
+						</ul>
+					</div>
+
+					<div class="dropdown">
+						<a class="nav-link link-light px-2 dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+							Ajouter
+						</a>
+						<ul class="dropdown-menu">
+							<li>
+								<a class="dropdown-item" href="{{ ea_admin_url('ArticleCrudController', 'new') }}">Article</a>
+							</li>
+							{% if is_granted('ROLE_ADMIN') %}
+								<li>
+									<a class="dropdown-item" href="{{ ea_admin_url('PageCrudController', 'new') }}">Page</a>
+								</li>
+							{% endif %}
+						</ul>
+					</div>
+
+					{# {% if ea_edit_current_entity is not null %}
+						<ul class="nav me-auto">
+							<li class="nav-item">
+								<a href="{{ ea_edit_current_entity }}" class="nav-link nav-link-admin link-light px-2">{{ label_edit_current_entity }}</a>
+							</li>
+						</ul>
+					{% endif %} #}
+
 				</div>
-
-				<div class="dropdown" aria-labelledby="dropdownMenuButtonAdminAdd">
-					<a class="nav-link link-light px-2 dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-						Ajouter
-					</a>
-					<ul class="dropdown-menu">
-						<li>
-							<a class="dropdown-item" href="#">Article</a>
-						</li>
-						<li>
-							<a class="dropdown-item" href="#">Page</a>
-						</li>
-					</ul>
-				</div>
-
-			</div>
-		</nav>
+			</nav>
+		{% endif %}
 
 		<div class="container">
 			<header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
@@ -61,50 +75,52 @@
 
 				<ul class="nav nav-pills align-items-center">
 					{% for menu in menus %}
-                        {% if menu.subMenus.count > 0 %}
-                            <div class="dropdown">
-                                <a class="nav-link text-dark px-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <span class="menu-label">{{ menu.name }}</span>
-                                </a>
-                                <ul class="dropdown-menu">
-                                    {% for subMenu in menu.subMenus %}
-                                        <li><a class="dropdown-item" href="{{ subMenu|menuLink }}">{{ subMenu.name }}</a></li>
-                                    {% endfor %}
-                                </ul>
-                            </div>
-                        {% else %}
-                            <li class="nav-item">
-                                <a href="{{ menu|menuLink }}" class="nav-link text-dark">
-                                    <span class="menu-label">{{ menu.name }}</span>
-                                </a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
+						{% if menu.subMenus.count > 0 %}
+							<div class="dropdown">
+								<a class="nav-link text-dark px-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+									<span class="menu-label">{{ menu.name }}</span>
+								</a>
+								<ul class="dropdown-menu">
+									{% for subMenu in menu.subMenus %}
+										<li>
+											<a class="dropdown-item" href="{{ subMenu|menuLink }}">{{ subMenu.name }}</a>
+										</li>
+									{% endfor %}
+								</ul>
+							</div>
+						{% else %}
+							<li class="nav-item">
+								<a href="{{ menu|menuLink }}" class="nav-link text-dark">
+									<span class="menu-label">{{ menu.name }}</span>
+								</a>
+							</li>
+						{% endif %}
+					{% endfor %}
 
 					{% if not is_granted('IS_AUTHENTICATED_FULLY') %}
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" href="{{ path('register') }}">S'inscrire</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="{{ path('login') }}" class="nav-link text-dark">
-                                <span class="menu-label">Se connecter</span>
-                            </a>
-                        </li>
-                    {% else %}
-                        <div class="dropdown">
-                            <a class="nav-link text-dark px-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                {{ app.user.username|capitalize }}
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li>
-                                    <a class="dropdown-item" href="{{ path('user', { 'username': app.user.username }) }}">Mon profil</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ path('logout') }}">Déconnexion</a>
-                                </li>
-                            </ul>
-                        </div>
-                    {% endif %}
+						<li class="nav-item">
+							<a class="nav-link text-dark" href="{{ path('register') }}">S'inscrire</a>
+						</li>
+						<li class="nav-item">
+							<a href="{{ path('login') }}" class="nav-link text-dark">
+								<span class="menu-label">Se connecter</span>
+							</a>
+						</li>
+					{% else %}
+						<div class="dropdown">
+							<a class="nav-link text-dark px-2 dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+								{{ app.user.username|capitalize }}
+							</a>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="{{ path('user', { 'username': app.user.username }) }}">Mon profil</a>
+								</li>
+								<li>
+									<a class="dropdown-item" href="{{ path('logout') }}">Déconnexion</a>
+								</li>
+							</ul>
+						</div>
+					{% endif %}
 				</ul>
 			</header>
 		</div>

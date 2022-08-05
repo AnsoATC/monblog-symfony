@@ -35,12 +35,21 @@ class App {
             });
 
             if(!response.ok){
+                console.log("Response not OK !!!");
                 return;
             }
 
             const json = await response.json();
 
-            console.log(json);
+            if(json.code === 'COMMENT_ADDED_SUCCESSFULLY'){
+                const commentList = document.querySelector('.comment-list');
+                const commentCount = document.querySelector('.comment-count');
+                const commentContent = document.querySelector('#comment_content');
+                commentList.insertAdjacentHTML('afterbegin', json.message);
+                // commentList.lastElementChild.scrollIntoView();
+                commentCount.innerHTML = json.numberOfComments;
+                commentContent.value = '';
+            }
         });
     }
 }

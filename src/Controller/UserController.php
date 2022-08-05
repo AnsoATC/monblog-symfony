@@ -28,7 +28,7 @@ class UserController extends AbstractController
             $em->persist($user);
             $em->flush();
 
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('user/register.html.twig', [
@@ -40,7 +40,7 @@ class UserController extends AbstractController
     public function login(AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->isGranted('IS_AUTHENTICATED_FULLY')) {
-            return $this->redirectToRoute('home');
+            return $this->redirectToRoute('app_home');
         }
 
         return $this->render('user/login.html.twig', [
