@@ -34,7 +34,7 @@ class CommentService
     {
         $request = $this->requestStack->getMainRequest();
         $page = $request->query->getInt('page', 1);
-        $limit = 3;
+        $limit = 5;
 
         $commentsQuery = $this->commentRepo->findForPagination($article);
 
